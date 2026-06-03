@@ -10,4 +10,4 @@ dependencies = [
 ]
 
 [tool.vercel]
-entrypoint = "api.telegram:handler"
+entrypoint = "api.index:handler"
