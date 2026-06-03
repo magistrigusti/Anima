@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 300,
+      "excludeFiles": "{.venv/**,__pycache__/**,**/__pycache__/**,*.log,.env}"
+    }
+  }
+}

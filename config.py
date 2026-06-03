@@ -51,6 +51,7 @@ def _read_bool(name: str, default: bool) -> bool:
 @dataclass(frozen=True)
 class Settings:
     telegram_bot_token: str
+    telegram_webhook_secret: str
     nvidia_api_key: str
     nvidia_base_url: str
     nvidia_model: str
@@ -67,6 +68,7 @@ class Settings:
     def from_env(cls) -> "Settings":
         return cls(
             telegram_bot_token=_read_env("TELEGRAM_BOT_TOKEN"),
+            telegram_webhook_secret=_read_env("TELEGRAM_WEBHOOK_SECRET"),
             nvidia_api_key=_read_env("NVIDIA_API_KEY"),
             nvidia_base_url=_read_env("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE_URL),
             nvidia_model=_read_env("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL),
@@ -85,4 +87,13 @@ class Settings:
             raise RuntimeError(
                 "Не найден TELEGRAM_BOT_TOKEN. "
                 "Добавь токен Telegram-бота в файл .env."
+            )
+
+    def validate_for_webhook(self) -> None:
+        self.validate_for_bot()
+
+        if not self.nvidia_api_key:
+            raise RuntimeError(
+                "Не найден NVIDIA_API_KEY. "
+                "Добавь ключ NVIDIA API в переменные окружения."
             )

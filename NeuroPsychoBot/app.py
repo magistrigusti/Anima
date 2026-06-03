@@ -15,6 +15,8 @@ def create_application() -> Application:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.INFO,
     )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("openai").setLevel(logging.WARNING)
 
     settings = Settings.from_env()
     settings.validate_for_bot()
