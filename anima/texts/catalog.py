@@ -1,6 +1,6 @@
 from types import ModuleType
 
-from NeuroPsychoBot.texts import en, ru
+from anima.texts import en, ru
 
 
 TEXT_PACKS: dict[str, ModuleType] = {

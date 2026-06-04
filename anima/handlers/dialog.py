@@ -12,8 +12,8 @@ from telegram.ext import (
     filters,
 )
 
-from NeuroPsychoBot.services.anima_coach import AnimaCoach
-from NeuroPsychoBot.services.dialogue_memory import DialogueMemory
+from anima.services.anima_coach import AnimaCoach
+from anima.services.dialogue_memory import DialogueMemory
 
 
 logger = logging.getLogger(__name__)

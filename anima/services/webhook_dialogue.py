@@ -2,11 +2,11 @@ import logging
 from types import ModuleType
 
 from config import Settings
-from NeuroPsychoBot.services.anima_coach import AnimaCoach
-from NeuroPsychoBot.services.dialogue_memory import DialogueMemory
-from NeuroPsychoBot.services.nvidia_client import NvidiaClient
-from NeuroPsychoBot.services.telegram_gateway import TelegramGateway
-from NeuroPsychoBot.texts.catalog import get_texts
+from anima.services.anima_coach import AnimaCoach
+from anima.services.dialogue_memory import DialogueMemory
+from anima.services.nvidia_client import NvidiaClient
+from anima.services.telegram_gateway import TelegramGateway
+from anima.texts.catalog import get_texts
 
 
 logger = logging.getLogger(__name__)

@@ -2,12 +2,12 @@ import logging
 from types import ModuleType
 from typing import Sequence
 
-from NeuroPsychoBot.services.nvidia_client import (
+from anima.services.nvidia_client import (
     ChatMessage,
     NvidiaClient,
     NvidiaClientError,
 )
-from NeuroPsychoBot.services.safety import has_crisis_signal
+from anima.services.safety import has_crisis_signal
 
 
 logger = logging.getLogger(__name__)

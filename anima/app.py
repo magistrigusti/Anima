@@ -3,11 +3,11 @@ import logging
 from telegram.ext import Application, ApplicationBuilder
 
 from config import Settings
-from NeuroPsychoBot.handlers.dialog import handle_error, register_dialog_handlers
-from NeuroPsychoBot.services.anima_coach import AnimaCoach
-from NeuroPsychoBot.services.dialogue_memory import DialogueMemory
-from NeuroPsychoBot.services.nvidia_client import NvidiaClient
-from NeuroPsychoBot.texts.catalog import get_texts
+from anima.handlers.dialog import handle_error, register_dialog_handlers
+from anima.services.anima_coach import AnimaCoach
+from anima.services.dialogue_memory import DialogueMemory
+from anima.services.nvidia_client import NvidiaClient
+from anima.texts.catalog import get_texts
 
 
 def create_application() -> Application:

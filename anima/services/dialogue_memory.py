@@ -1,4 +1,4 @@
-from NeuroPsychoBot.services.nvidia_client import ChatMessage, ChatRole
+from anima.services.nvidia_client import ChatMessage, ChatRole
 
 
 class DialogueMemory:

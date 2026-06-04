@@ -107,7 +107,7 @@ def _get_webhook_service(settings: object) -> object:
     global _webhook_service
 
     if _webhook_service is None:
-        from NeuroPsychoBot.services.webhook_dialogue import WebhookDialogueService
+        from anima.services.webhook_dialogue import WebhookDialogueService
 
         _webhook_service = WebhookDialogueService.from_settings(settings)
 

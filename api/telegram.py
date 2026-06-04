@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler
 from typing import Any
 
 from config import Settings
-from NeuroPsychoBot.services.webhook_dialogue import WebhookDialogueService
+from anima.services.webhook_dialogue import WebhookDialogueService
 
 
 logging.basicConfig(

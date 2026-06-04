@@ -1,6 +1,6 @@
 from telegram import Update
 
-from NeuroPsychoBot.app import create_application
+from anima.app import create_application
 
 
 def main() -> None:
