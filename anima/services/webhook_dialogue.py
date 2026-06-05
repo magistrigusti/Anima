@@ -1,9 +1,8 @@
 import logging
-from time import monotonic
 from types import ModuleType
 
 from config import Settings
-from anima.services.anima_coach import AnimaCoach, WAITING_TEXT
+from anima.services.anima_coach import AnimaCoach
 from anima.services.dialogue_memory import DialogueMemory
 from anima.services.nvidia_client import NvidiaClient
 from anima.services.telegram_gateway import TelegramGateway
@@ -11,8 +10,6 @@ from anima.texts.catalog import get_texts
 
 
 logger = logging.getLogger(__name__)
-
-WAIT_NOTICE_INTERVAL_SECONDS = 120.0
 
 
 class WebhookDialogueService:
@@ -27,7 +24,6 @@ class WebhookDialogueService:
         self._memory = memory
         self._telegram = telegram
         self._texts = texts
-        self._last_wait_notice_at: dict[int, float] = {}
 
     @classmethod
     def from_settings(cls, settings: Settings) -> "WebhookDialogueService":
@@ -104,27 +100,10 @@ class WebhookDialogueService:
         history = self._memory.get_history(user_id)
         answer = await self._coach.answer(user_text=user_text, history=history)
 
-        if self._is_repeated_wait_notice(user_id=user_id, answer=answer):
-            return ""
-
         self._memory.remember_user_message(user_id=user_id, text=user_text)
         self._memory.remember_assistant_message(user_id=user_id, text=answer)
 
         return answer
-
-    def _is_repeated_wait_notice(self, user_id: int, answer: str) -> bool:
-        if answer != WAITING_TEXT:
-            return False
-
-        now = monotonic()
-        last_notice_at = self._last_wait_notice_at.get(user_id)
-
-        if last_notice_at is not None and now - last_notice_at < WAIT_NOTICE_INTERVAL_SECONDS:
-            return True
-
-        self._last_wait_notice_at[user_id] = now
-
-        return False
 
     def _extract_message(
         self,
