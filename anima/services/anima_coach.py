@@ -13,6 +13,7 @@ from anima.services.safety import has_crisis_signal
 logger = logging.getLogger(__name__)
 
 TELEGRAM_TEXT_LIMIT = 3600
+WAITING_TEXT = "Анима готовит ответ."
 
 
 class AnimaCoach:
@@ -46,7 +47,7 @@ class AnimaCoach:
             answer = await self._nvidia_client.create_chat_completion(messages)
         except NvidiaClientError as error:
             logger.warning("NVIDIA ответ недоступен: %s", error)
-            return self._texts.FALLBACK_COACH_TEXT
+            return WAITING_TEXT
 
         return self._prepare_for_telegram(answer)
 
@@ -54,7 +55,7 @@ class AnimaCoach:
         clean_answer = answer.strip()
 
         if not clean_answer:
-            return self._texts.FALLBACK_COACH_TEXT
+            return WAITING_TEXT
 
         if len(clean_answer) <= TELEGRAM_TEXT_LIMIT:
             return clean_answer

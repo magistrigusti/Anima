@@ -1,4 +1,5 @@
 import logging
+from time import monotonic
 from types import ModuleType
 from typing import cast
 
@@ -12,7 +13,7 @@ from telegram.ext import (
     filters,
 )
 
-from anima.services.anima_coach import AnimaCoach
+from anima.services.anima_coach import AnimaCoach, WAITING_TEXT
 from anima.services.dialogue_memory import DialogueMemory
 
 
@@ -21,6 +22,8 @@ logger = logging.getLogger(__name__)
 COACH_KEY = "anima_coach"
 MEMORY_KEY = "anima_memory"
 TEXTS_KEY = "anima_texts"
+WAIT_NOTICE_KEY = "anima_wait_notice"
+WAIT_NOTICE_INTERVAL_SECONDS = 120.0
 
 
 def register_dialog_handlers(
@@ -110,6 +113,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     answer = await coach.answer(user_text=user_text, history=history)
 
+    if _is_repeated_wait_notice(
+        application=context.application,
+        user_id=user_id,
+        answer=answer,
+    ):
+        return
+
     memory.remember_user_message(user_id=user_id, text=user_text)
     memory.remember_assistant_message(user_id=user_id, text=answer)
 
@@ -138,3 +148,23 @@ def _get_memory(context: ContextTypes.DEFAULT_TYPE) -> DialogueMemory:
 
 def _get_texts(context: ContextTypes.DEFAULT_TYPE) -> ModuleType:
     return cast(ModuleType, context.application.bot_data[TEXTS_KEY])
+
+
+def _is_repeated_wait_notice(
+    application: Application,
+    user_id: int,
+    answer: str,
+) -> bool:
+    if answer != WAITING_TEXT:
+        return False
+
+    notices = application.bot_data.setdefault(WAIT_NOTICE_KEY, {})
+    last_notice_at = notices.get(user_id)
+    now = monotonic()
+
+    if last_notice_at is not None and now - last_notice_at < WAIT_NOTICE_INTERVAL_SECONDS:
+        return True
+
+    notices[user_id] = now
+
+    return False
