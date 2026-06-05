@@ -1,6 +1,6 @@
 from typing import Literal, Sequence, TypedDict
 
-from openai import APIConnectionError, APIStatusError, APITimeoutError, AsyncOpenAI
+from openai import AsyncOpenAI, OpenAIError
 
 from config import Settings
 
@@ -37,42 +37,39 @@ class NvidiaClient:
         if not self.is_configured:
             raise NvidiaClientError("NVIDIA_API_KEY не задан.")
 
-        try:
-            stream = await self._client.chat.completions.create(
-                model=self._settings.nvidia_model,
-                messages=list(messages),
-                temperature=self._settings.nvidia_temperature,
-                top_p=self._settings.nvidia_top_p,
-                max_tokens=self._settings.nvidia_max_tokens,
-                extra_body=self._build_extra_body(),
-                stream=True,
-            )
-        except (APIConnectionError, APIStatusError, APITimeoutError) as error:
-            raise NvidiaClientError(f"NVIDIA API недоступен: {error}") from error
+        request_body: dict[str, object] = {
+            "model": self._settings.nvidia_model,
+            "messages": list(messages),
+            "temperature": self._settings.nvidia_temperature,
+            "top_p": self._settings.nvidia_top_p,
+            "max_tokens": self._settings.nvidia_max_tokens,
+        }
 
-        answer_parts: list[str] = []
+        extra_body = self._build_extra_body()
+
+        if extra_body:
+            request_body["extra_body"] = extra_body
 
         try:
-            async for chunk in stream:
-                if not chunk.choices:
-                    continue
+            response = await self._client.chat.completions.create(**request_body)
+        except OpenAIError as error:
+            raise NvidiaClientError(f"NVIDIA API вернул ошибку: {error}") from error
 
-                content = chunk.choices[0].delta.content
+        if not response.choices:
+            raise NvidiaClientError("NVIDIA API вернул ответ без choices.")
 
-                if content:
-                    answer_parts.append(content)
-        except (APIConnectionError, APIStatusError, APITimeoutError) as error:
-            raise NvidiaClientError(f"NVIDIA stream оборвался: {error}") from error
+        content = response.choices[0].message.content
 
-        answer = "".join(answer_parts).strip()
+        if not isinstance(content, str) or not content.strip():
+            raise NvidiaClientError("NVIDIA API вернул пустой текст.")
 
-        if not answer:
-            raise NvidiaClientError("NVIDIA API вернул пустой ответ.")
-
-        return answer
+        return content.strip()
 
     def _build_extra_body(self) -> dict[str, object]:
         if not self._settings.nvidia_enable_thinking:
+            return {}
+
+        if self._settings.nvidia_reasoning_budget <= 0:
             return {}
 
         return {
