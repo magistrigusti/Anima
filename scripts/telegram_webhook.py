@@ -23,7 +23,7 @@ def main() -> None:
     set_parser = subparsers.add_parser("set")
     set_parser.add_argument(
         "base_url",
-        help="Production URL Vercel проекта, например https://anima-couch.vercel.app/",
+        help="https://anima-couch.vercel.app/api/telegram/",
     )
 
     subparsers.add_parser("delete")
