@@ -9,6 +9,7 @@ load_dotenv()
 
 DEFAULT_NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 DEFAULT_NVIDIA_MODEL = "nvidia/nemotron-3-super-120b-a12b"
+DEFAULT_NVIDIA_FALLBACK_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"
 
 
 def _read_env(name: str, default: str = "") -> str:
@@ -53,8 +54,10 @@ class Settings:
     telegram_bot_token: str
     telegram_webhook_secret: str
     nvidia_api_key: str
+    nvidia_fallback_api_key: str
     nvidia_base_url: str
     nvidia_model: str
+    nvidia_fallback_model: str
     nvidia_temperature: float
     nvidia_top_p: float
     nvidia_max_tokens: int
@@ -70,8 +73,16 @@ class Settings:
             telegram_bot_token=_read_env("TELEGRAM_BOT_TOKEN"),
             telegram_webhook_secret=_read_env("TELEGRAM_WEBHOOK_SECRET"),
             nvidia_api_key=_read_env("NVIDIA_API_KEY"),
+            nvidia_fallback_api_key=(
+                _read_env("NVIDIA_FALLBACK_API_KEY")
+                or _read_env("API_KEY_NVIDIA")
+            ),
             nvidia_base_url=_read_env("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE_URL),
             nvidia_model=_read_env("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL),
+            nvidia_fallback_model=_read_env(
+                "NVIDIA_FALLBACK_MODEL",
+                DEFAULT_NVIDIA_FALLBACK_MODEL,
+            ),
             nvidia_temperature=_read_float("NVIDIA_TEMPERATURE", 1.0),
             nvidia_top_p=_read_float("NVIDIA_TOP_P", 0.95),
             nvidia_max_tokens=_read_int("NVIDIA_MAX_TOKENS", 16384),
@@ -92,8 +103,8 @@ class Settings:
     def validate_for_webhook(self) -> None:
         self.validate_for_bot()
 
-        if not self.nvidia_api_key:
+        if not self.nvidia_api_key and not self.nvidia_fallback_api_key:
             raise RuntimeError(
-                "Не найден NVIDIA_API_KEY. "
-                "Добавь ключ NVIDIA API в переменные окружения."
+                "Не найден NVIDIA_API_KEY или API_KEY_NVIDIA. "
+                "Добавь основной или запасной ключ NVIDIA API в окружение."
             )

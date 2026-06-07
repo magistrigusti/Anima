@@ -13,7 +13,11 @@ from anima.services.safety import has_crisis_signal
 logger = logging.getLogger(__name__)
 
 TELEGRAM_TEXT_LIMIT = 3600
-NVIDIA_ERROR_TEXT = "Нейросеть NVIDIA сейчас не вернула ответ."
+NVIDIA_ERROR_TEXT = (
+    "Извини, сейчас возникла техническая проблема, "
+    "и я не смогла получить ответ.\n\n"
+    "Попробуй написать еще раз чуть позже."
+)
 
 
 class AnimaCoach:
@@ -48,7 +52,7 @@ class AnimaCoach:
         except NvidiaClientError as error:
             logger.warning("NVIDIA ответ недоступен: %s", error)
 
-            return self._prepare_error_for_telegram(error)
+            return self._prepare_error_for_telegram()
 
         return self._prepare_for_telegram(answer)
 
@@ -63,13 +67,5 @@ class AnimaCoach:
 
         return f"{clean_answer[:TELEGRAM_TEXT_LIMIT].rstrip()}..."
 
-    def _prepare_error_for_telegram(self, error: NvidiaClientError) -> str:
-        clean_error = str(error).strip()
-
-        if not clean_error:
-            return NVIDIA_ERROR_TEXT
-
-        return (
-            f"{NVIDIA_ERROR_TEXT}\n\n"
-            f"Техническая причина: {clean_error[:900]}"
-        )
+    def _prepare_error_for_telegram(self) -> str:
+        return NVIDIA_ERROR_TEXT

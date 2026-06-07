@@ -12,8 +12,10 @@ Anima — Telegram-помощница психолог и коуч.
 ```env
 TELEGRAM_BOT_TOKEN=
 NVIDIA_API_KEY=
+API_KEY_NVIDIA=
 NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
 NVIDIA_MODEL=nvidia/nemotron-3-super-120b-a12b
+NVIDIA_FALLBACK_MODEL=nvidia/nemotron-3-ultra-550b-a55b
 NVIDIA_TEMPERATURE=1
 NVIDIA_TOP_P=0.95
 NVIDIA_MAX_TOKENS=16384
@@ -47,8 +49,10 @@ python bot.py
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_WEBHOOK_SECRET=
 NVIDIA_API_KEY=
+API_KEY_NVIDIA=
 NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
 NVIDIA_MODEL=nvidia/nemotron-3-super-120b-a12b
+NVIDIA_FALLBACK_MODEL=nvidia/nemotron-3-ultra-550b-a55b
 NVIDIA_TEMPERATURE=1
 NVIDIA_TOP_P=0.95
 NVIDIA_MAX_TOKENS=16384
