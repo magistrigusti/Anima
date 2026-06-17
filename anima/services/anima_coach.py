@@ -18,6 +18,7 @@ NVIDIA_ERROR_TEXT = (
     "и я не смогла получить ответ.\n\n"
     "Попробуй написать еще раз чуть позже."
 )
+WAITING_TEXT = NVIDIA_ERROR_TEXT
 
 
 class AnimaCoach:

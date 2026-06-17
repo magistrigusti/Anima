@@ -35,6 +35,19 @@ python bot.py
 
 Этот режим использует polling и подходит для разработки на компьютере.
 
+## Render
+
+Render запускает Anima как Web Service через команду:
+
+```bash
+python bot.py
+```
+
+В корне проекта лежит `.python-version` со значением `3.12`.
+Этот файл фиксирует стабильную ветку Python для Render и защищает старую связку
+`python-telegram-bot==20.3`, `httpx==0.24.1`, `httpcore==0.17.3`
+от запуска на Python 3.14.
+
 ## Vercel webhook
 
 Для постоянной работы без включенного компьютера Anima использует Vercel Function:
