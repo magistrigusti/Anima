@@ -43,6 +43,11 @@ Render запускает Anima как Web Service через команду:
 python bot.py
 ```
 
+Так как текущий сервис в Render создан именно как Web Service, `bot.py`
+дополнительно запускает легкий HTTP health-server на `0.0.0.0:$PORT`.
+Он отвечает на `/` и `/health`, а основной Telegram-бот продолжает работать
+через polling.
+
 В корне проекта лежит `.python-version` со значением `3.12`.
 Этот файл фиксирует стабильную ветку Python для Render и защищает старую связку
 `python-telegram-bot==20.3`, `httpx==0.24.1`, `httpcore==0.17.3`
