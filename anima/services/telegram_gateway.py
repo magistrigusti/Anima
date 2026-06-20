@@ -24,22 +24,45 @@ class TelegramGateway:
         if reply_to_message_id is not None:
             payload["reply_to_message_id"] = reply_to_message_id
 
+        await self._call_method(
+            method="sendMessage",
+            payload=payload,
+        )
+
+    async def send_chat_action(
+        self,
+        chat_id: int,
+        action: str = "typing",
+    ) -> None:
+        await self._call_method(
+            method="sendChatAction",
+            payload={
+                "chat_id": chat_id,
+                "action": action,
+            },
+        )
+
+    async def _call_method(
+        self,
+        method: str,
+        payload: dict[str, object],
+    ) -> None:
         try:
             async with httpx.AsyncClient(timeout=20.0) as client:
                 response = await client.post(
-                    self._send_message_endpoint,
+                    self._build_endpoint(method),
                     json=payload,
                 )
         except httpx.HTTPError as error:
             raise TelegramGatewayError(
-                "Telegram API недоступен при отправке сообщения."
+                f"Telegram API недоступен при вызове {method}."
             ) from error
 
         if response.status_code >= 400:
             raise TelegramGatewayError(
-                f"Telegram API вернул HTTP {response.status_code}."
+                f"Telegram API вернул HTTP {response.status_code} "
+                f"при вызове {method}."
             )
 
-    @property
-    def _send_message_endpoint(self) -> str:
-        return f"https://api.telegram.org/bot{self._bot_token}/sendMessage"
+    def _build_endpoint(self, method: str) -> str:
+        return f"https://api.telegram.org/bot{self._bot_token}/{method}"

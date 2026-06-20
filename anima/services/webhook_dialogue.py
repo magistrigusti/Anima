@@ -1,15 +1,23 @@
+import asyncio
 import logging
+from contextlib import suppress
 from types import ModuleType
 
 from config import Settings
 from anima.services.anima_coach import AnimaCoach
 from anima.services.dialogue_memory import DialogueMemory
 from anima.services.nvidia_client import NvidiaClient
-from anima.services.telegram_gateway import TelegramGateway
+from anima.services.telegram_gateway import (
+    TelegramGateway,
+    TelegramGatewayError,
+)
 from anima.texts.catalog import get_texts
 
 
 logger = logging.getLogger(__name__)
+
+WAITING_NOTICE_DELAY_SECONDS = 5.0
+TYPING_INTERVAL_SECONDS = 4.0
 
 
 class WebhookDialogueService:
@@ -61,11 +69,28 @@ class WebhookDialogueService:
             logger.warning("Telegram update без chat_id или user_id.")
             return
 
-        answer = await self._build_answer(
-            user_id=user_id,
-            user_text=text,
-            first_name=self._extract_first_name(message),
-        )
+        processing_task: asyncio.Task[None] | None = None
+
+        if not self._extract_command(text):
+            processing_task = asyncio.create_task(
+                self._show_processing_status(
+                    chat_id=chat_id,
+                    reply_to_message_id=message_id,
+                )
+            )
+
+        try:
+            answer = await self._build_answer(
+                user_id=user_id,
+                user_text=text,
+                first_name=self._extract_first_name(message),
+            )
+        finally:
+            if processing_task is not None:
+                processing_task.cancel()
+
+                with suppress(asyncio.CancelledError):
+                    await processing_task
 
         if not answer:
             return
@@ -75,6 +100,30 @@ class WebhookDialogueService:
             text=answer,
             reply_to_message_id=message_id,
         )
+
+    async def _show_processing_status(
+        self,
+        chat_id: int,
+        reply_to_message_id: int | None,
+    ) -> None:
+        try:
+            await self._telegram.send_chat_action(chat_id=chat_id)
+            await asyncio.sleep(WAITING_NOTICE_DELAY_SECONDS)
+
+            await self._telegram.send_message(
+                chat_id=chat_id,
+                text=self._texts.PROCESSING_TEXT,
+                reply_to_message_id=reply_to_message_id,
+            )
+
+            while True:
+                await self._telegram.send_chat_action(chat_id=chat_id)
+                await asyncio.sleep(TYPING_INTERVAL_SECONDS)
+        except TelegramGatewayError as error:
+            logger.warning(
+                "Не удалось показать статус подготовки ответа: %s",
+                error,
+            )
 
     async def _build_answer(
         self,

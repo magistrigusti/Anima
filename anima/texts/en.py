@@ -27,6 +27,11 @@ RESET_TEXT = "This dialogue memory has been cleared. We can start fresh."
 
 EMPTY_TEXT = "I am here. Write at least a few words about what is happening."
 
+PROCESSING_TEXT = (
+    "I received your message. I need a little time — "
+    "I am carefully preparing my reply."
+)
+
 ERROR_TEXT = (
     "I am here, but a technical error happened. "
     "Please try again a little later."
